@@ -1,0 +1,26 @@
+﻿@page "/"
+@inject BlogService BlogService
+
+<PageTitle>Folio</PageTitle>
+
+<hgroup style="text-align: center; margin-bottom: 3rem; margin-top: 2rem;">
+    <h1>Folio</h1>
+    <p>Pensamentos e ideias minimalistas.</p>
+</hgroup>
+
+@foreach (var post in BlogService.GetAllPosts())
+{
+    <article>
+        <header>
+            <h2 style="margin-bottom: 0;">@post.Title</h2>
+        </header>
+
+        <div>
+            @((MarkupString)post.HtmlContent.Replace("src=\"", $"src=\"/posts-data/{post.Slug}/"))
+        </div>
+
+        <footer>
+            <small>Publicado em @post.Slug</small>
+        </footer> 
+    </article>
+}

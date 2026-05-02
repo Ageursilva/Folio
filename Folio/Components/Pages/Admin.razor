@@ -1,0 +1,54 @@
+﻿@page "/admin"
+@attribute [Authorize]
+@inject NavigationManager NavManager
+
+<PageTitle>Admin - Novo Post</PageTitle>
+
+<nav>
+    <ul><li><strong>Painel Folio</strong></li></ul>
+    <ul><li><a href="/">Voltar ao Blog</a></li></ul>
+</nav>
+
+<main>
+    <h2>Escrever Novo Post</h2>
+
+    <form method="post" @onsubmit="SalvarPost" @formname="postForm">
+        <AntiforgeryToken />
+
+        <label>
+            Título do Post (Irá gerar a URL automaticamente)
+            <input type="text" name="Title" @bind="Title" required />
+        </label>
+
+        <label>
+            Conteúdo (Markdown)
+            <textarea name="Content" @bind="Content" rows="15" required placeholder="# Escreva sua ideia aqui..."></textarea>
+        </label>
+
+        <button type="submit">Publicar</button>
+    </form>
+</main>
+
+@code {
+    [SupplyParameterFromForm] public string Title { get; set; } = string.Empty;
+    [SupplyParameterFromForm] public string Content { get; set; } = string.Empty;
+
+    private void SalvarPost()
+    {
+        if (string.IsNullOrWhiteSpace(Title) || string.IsNullOrWhiteSpace(Content)) return;
+
+        var slug = Title.ToLower().Replace(" ", "-");
+
+        var contentPath = Path.Combine(Directory.GetCurrentDirectory(), "Content", slug);
+
+        if (!Directory.Exists(contentPath))
+        {
+            Directory.CreateDirectory(contentPath);
+        }
+
+        var mdPath = Path.Combine(contentPath, "index.md");
+        File.WriteAllText(mdPath, Content, System.Text.Encoding.UTF8);
+
+        NavManager.NavigateTo("/");
+    }
+}
